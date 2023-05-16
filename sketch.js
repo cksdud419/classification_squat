@@ -78,14 +78,12 @@ function setup() {
 function selectReset() {
   count = 0;
   resetSound.play();
-  console.log('횟수 카운트 초기화');
 }
 
 function selectCount() {
   countName = sel.value();
   count = 0;
   if(countName != 'None')
-    console.log(countName, ': 동작 횟수를 측정');
 }
 
 //각도는 양 옆 점(p1, p3) 사이에 끼인 점(p2)의 사이각을 구함
@@ -146,7 +144,6 @@ function classifyResult(error, results) {
   }
   
   if(curState != pastState){
-    console.log(results[0].label, results[0].confidence);
     if(curState == countName){   //카운트
       count++;
       countSound.play();
