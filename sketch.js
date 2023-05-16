@@ -150,7 +150,7 @@ function classifyResult(error, results) {
     if(curState == countName){   //카운트
       count++;
       countSound.play();
-      console.log(countName, ':', count);
+      console.log('Exercise:',countName,':', count);
     }
   }
   
