@@ -28,7 +28,7 @@ function setup() {
   //createCanvas(480, 640);
   //createCanvas(320, 240);
   //createCanvas(240, 320);
-  createCanvas(640, 960);
+  createCanvas(1080, 1920);
   
 
 
