@@ -58,8 +58,8 @@ function setup() {
   
   brain.load(modelInfo, classification);
   
-  resetBtn = createButton('Reset');
-  resetBtn.mousePressed(selectReset);
+  //resetBtn = createButton('Reset');
+  //resetBtn.mousePressed(selectReset);
   
   // 동작 선택
   sel = createSelect();
