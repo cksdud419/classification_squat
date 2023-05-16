@@ -83,7 +83,6 @@ function selectReset() {
 function selectCount() {
   countName = sel.value();
   count = 0;
-  if(countName != 'None')
 }
 
 //각도는 양 옆 점(p1, p3) 사이에 끼인 점(p2)의 사이각을 구함
