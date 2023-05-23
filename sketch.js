@@ -4,7 +4,6 @@
 //모션 추정 코드
 
 let video;
-let resetSound;
 let countSound;
 
 let poseNet;
@@ -24,20 +23,12 @@ function preload(){
 }  //저장된 동작 리스트를 알기 위해 json파일을 프로그램 실행 전 미리 로드
 
 function setup() {
-  //createCanvas(640, 480);
-  //createCanvas(480, 640);
-  //createCanvas(320, 240);
-  //createCanvas(240, 320);
   createCanvas(384, 512);
-  
-
-
   video = createCapture(VIDEO);
   video.size(width, height);
   video.hide();
   
   countSound = loadSound('sound/check.wav');
-  resetSound = loadSound('sound/reset.mp3');
   
   poseNet = ml5.poseNet(video);
   poseNet.on('pose', extraction);
@@ -58,31 +49,8 @@ function setup() {
   
   brain.load(modelInfo, classification);
   
-  resetBtn = createButton('Reset');
-  resetBtn.mousePressed(selectReset);
-  
   // 동작 선택
-  sel = createSelect();
-  sel.option('None');
-  for(let i = 0; i < motionList.outputs[0].uniqueValues.length; i++) {
-    sel.option(motionList.outputs[0].uniqueValues[i]);  }
-  sel.changed(selectCount);
-  
-  // 각도 선택
-  selectAngle = createCheckbox('각도 보기', false);
-}
-
-
-
-
-function selectReset() {
-  count = 0;
-  resetSound.play();
-}
-
-function selectCount() {
-  countName = sel.value();
-  count = 0;
+  countName = motionList.outputs[0].uniqueValues[1];
 }
 
 //각도는 양 옆 점(p1, p3) 사이에 끼인 점(p2)의 사이각을 구함
@@ -191,29 +159,4 @@ function draw() {
   }
   
   scale(-1,1);
-
-  if(countName != 'None'){
-    textSize(20);
-    fill(0,0,0);
-    strokeWeight(3);
-    textAlign(RIGHT, TOP);
-    text('동작 - ' + countName + '\n' + count + ' 회', -30, 30);
-  }
-
-  if(selectAngle.checked()) {
-    textSize(17);
-    fill(0,0,0);
-    strokeWeight(2);
-    textAlign(RIGHT, TOP);
-    if(countName == 'None'){
-      text('무릎 각도\n' + '좌: ' + angle.leftKnee + '\n우: '+ angle.rightKnee + '\n'
-          + '어깨 각도\n' + '좌: ' + angle.leftShoulder + '\n우: ' + angle.rightShoulder + '\n'
-          + '팔꿈치 각도\n' + '좌: ' + angle.leftElbow + '\n우: ' + angle.rightElbow, -30, 30);
-    }
-    else{
-      text('무릎 각도\n' + '좌: ' + angle.leftKnee + '\n우: '+ angle.rightKnee + '\n'
-          + '어깨 각도\n' + '좌: ' + angle.leftShoulder + '\n우: ' + angle.rightShoulder + '\n'
-          + '팔꿈치 각도\n' + '좌: ' + angle.leftElbow + '\n우: ' + angle.rightElbow, -30, 90);
-    }
-  }
 }
