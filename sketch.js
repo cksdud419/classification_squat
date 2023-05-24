@@ -1,10 +1,6 @@
-//ml5 포즈넷 명령어 및 메소드 참고 - https://learn.ml5js.org/#/reference/posenet
-//ml5 neuralNetwork - https://learn.ml5js.org/#/reference/neural-network
-//p5 레퍼런스 - https://p5js.org/ko/reference/
-//모션 추정 코드
-
 let video;
-let countSound;
+let recorder;
+let isRecording = false;
 
 let poseNet;
 let pose;
@@ -20,66 +16,104 @@ let angle;
 
 function preload(){
   motionList = loadJSON('model/model_meta.json');
-}  //저장된 동작 리스트를 알기 위해 json파일을 프로그램 실행 전 미리 로드
+}
 
 function setup() {
   createCanvas(384, 512);
+
   video = createCapture(VIDEO);
   video.size(width, height);
   video.hide();
-  
+
   countSound = loadSound('sound/check.wav');
-  
+  resetSound = loadSound('sound/reset.mp3');
+
   poseNet = ml5.poseNet(video);
   poseNet.on('pose', extraction);
-  
+
   let options = {
     inputs: 34,
     outputs: [],
     task: 'classification',
     debug: true
-  }
-  brain = ml5.neuralNetwork(options);
-  
-  const modelInfo = {
-  model: 'model/model.json',
-  metadata: 'model/model_meta.json',
-  weights: 'model/model.weights.bin',
   };
-  
+  brain = ml5.neuralNetwork(options);
+
+  const modelInfo = {
+    model: 'model/model.json',
+    metadata: 'model/model_meta.json',
+    weights: 'model/model.weights.bin'
+  };
+
   brain.load(modelInfo, classification);
-  
-  // 동작 선택
-  countName = motionList.outputs[0].uniqueValues[1];
+
+  resetBtn = createButton('Reset');
+  resetBtn.mousePressed(selectReset);
+
+  sel = createSelect();
+  sel.option('None');
+  for (let i = 0; i < motionList.outputs[0].uniqueValues.length; i++) {
+    sel.option(motionList.outputs[0].uniqueValues[i]);
+  }
+  sel.changed(selectCount);
+
+  selectAngle = createCheckbox('각도 보기', false);
+
+  recordBtn = createButton('Record');
+  recordBtn.mousePressed(toggleRecording);
 }
 
-//각도는 양 옆 점(p1, p3) 사이에 끼인 점(p2)의 사이각을 구함
-//ex = getAngle(pose.leftShoulder, pose.leftElbow, pose.leftWrist)
-function getAngle(p1,p2,p3){
-  if(p1.confidence < 0.65 || p2.confidence < 0.65 || p3.confidence < 0.65)
-    return null;  // 키포인트 인식이 제대로 되지 않으면 각도 계산을 하지 않음
-  
-  rad = Math.atan2(p3.y - p2.y, p3.x - p2.x) - Math.atan2(p1.y - p2.y, p1.x - p2.x) //atan2 함수를 이용하여 라디안 계산  
-  deg = rad * (180 / Math.PI) // 라디안을 각도로 환산하기 위해 180/파이 곱
-  vecdeg = 360-Math.abs(deg); // 반대쪽 각
-  
-  if(deg < 0)
-    return Math.abs(deg);     // 음각일 때 절대값으로 반환
+function toggleRecording() {
+  if (isRecording) {
+    recorder.stop();
+    isRecording = false;
+    recordBtn.html('Record');
+  } else {
+    recorder = new p5.SoundRecorder();
+    recorder.setInput(video);
+
+    let soundFile = new p5.SoundFile();
+    recorder.record(soundFile);
+
+    isRecording = true;
+    recordBtn.html('Stop');
+  }
+}
+
+function selectReset() {
+  count = 0;
+  resetSound.play();
+}
+
+function selectCount() {
+  countName = sel.value();
+  count = 0;
+}
+
+function getAngle(p1, p2, p3) {
+  if (p1.confidence < 0.65 || p2.confidence < 0.65 || p3.confidence < 0.65)
+    return null;
+
+  rad = Math.atan2(p3.y - p2.y, p3.x - p2.x) - Math.atan2(p1.y - p2.y, p1.x - p2.x);
+  deg = rad * (180 / Math.PI);
+  vecdeg = 360 - Math.abs(deg);
+
+  if (deg < 0)
+    return Math.abs(deg);
   else
     return deg;
 }
 
-function angleUpdate(){
-  // 추가적인 각도 계산이 필요하면 추가할 것
-  leftElbow = getAngle(pose.leftShoulder, pose.leftElbow, pose.leftWrist);      //좌측 팔꿈치각도
-  rightElbow = getAngle(pose.rightShoulder, pose.rightElbow, pose.rightWrist);  //우측 팔꿈치각도
-  
-  leftKnee = getAngle(pose.leftHip, pose.leftKnee, pose.leftAnkle);      //좌측 무릎
-  rightKnee = getAngle(pose.rightHip, pose.rightKnee, pose.rightAnkle);  //우측 무릎  
-  
-  leftShoulder = getAngle(pose.leftElbow, pose.leftShoulder, pose.leftHip);      //좌측 어깨(겨드랑이)
-  rightShoulder = getAngle(pose.rightElbow, pose.rightShoulder, pose.rightHip);  //우측 어깨
-  
+function angleUpdate() {
+  leftElbow = getAngle(pose.leftShoulder, pose.leftElbow, pose.leftWrist);
+  rightElbow = getAngle(pose.rightShoulder, pose.rightElbow, pose.rightWrist);
+
+  leftKnee = getAngle(pose.leftHip, pose.leftKnee, pose.leftAnkle);
+  rightKnee = getAngle(pose.rightHip, pose.rightKnee, pose.rightAnkle);
+
+  leftShoulder = getAngle(pose.leftElbow, pose.leftShoulder, pose.leftHip);
+  rightShoulder = getAngle(pose.rightElbow, pose.rightShoulder, pose.rightHip);
+
   return {
     leftElbow: leftElbow,
     rightElbow: rightElbow,
@@ -87,76 +121,112 @@ function angleUpdate(){
     rightKnee: rightKnee,
     leftShoulder: leftShoulder,
     rightShoulder: rightShoulder
-  };
+  }
+}
+
+function extraction(results) {
+  if (results.length > 0) {
+    pose = results[0].pose;
+    skeleton = results[0].skeleton;
+
+    if (pose) {
+      curState = angleUpdate();
+      if (pastState && curState) {
+        angle = [
+          pastState.leftElbow - curState.leftElbow,
+          pastState.rightElbow - curState.rightElbow,
+          pastState.leftKnee - curState.leftKnee,
+          pastState.rightKnee - curState.rightKnee,
+          pastState.leftShoulder - curState.leftShoulder,
+          pastState.rightShoulder - curState.rightShoulder
+        ];
+      }
+      pastState = curState;
+    }
+  }
 }
 
 function classification() {
-  if(pose){
-    let inputs = [];
-    for (let i = 0; i < pose.keypoints.length; i++) {
-      inputs.push(pose.keypoints[i].position.x);
-      inputs.push(pose.keypoints[i].position.y);  
-    }
-    brain.classify(inputs, classifyResult);
-  }
-  else{
-    setTimeout(classification, 100);  //포즈가 인식되지 않았을 때 100밀리초마다 포즈추정 반복
-  }
+  let inputs = {
+    leftElbow: angle[0],
+    rightElbow: angle[1],
+    leftKnee: angle[2],
+    rightKnee: angle[3],
+    leftShoulder: angle[4],
+    rightShoulder: angle[5]
+  };
+
+  brain.classify(inputs, gotResults);
 }
 
-function classifyResult(error, results) {
-  pastState = curState;
-  if(results[0].confidence > 0.95){  //정확도가 95%이상일 때만 결과 출력
-    curState = results[0].label;
+function gotResults(error, results) {
+  if (error) {
+    console.error(error);
+    return;
   }
-  
-  if(curState != pastState){
-    if(curState == countName){   //카운트
-      count++;
-      countSound.play();
-      console.log('Exercise:',countName,':', count);
+
+  let confidenceThreshold = 0.8;
+  let confidence = results[0].confidence.toFixed(2);
+  let label = results[0].label;
+
+  if (confidence > confidenceThreshold) {
+    if (countName == label) {
+      if (count == 0) {
+        countSound.play();
+      }
+      count += 1;
     }
   }
-  
+
   classification();
 }
 
-function extraction(data) {
-  if (data.length > 0) {          //포즈를 찾으면 배열의 길이를 확인
-    pose = data[0].pose;           //배열에서 첫 번째 포즈를 찾으면 전역변수에 저장-키포인트
-    skeleton = data[0].skeleton;   //골격도 마찬가지
+function draw() {
+  background(0);
+  image(video, 0, 0, width, height);
+
+  if (pose) {
+    drawSkeleton();
+    drawPose();
   }
-  else pose = null;
+
+  fill(255);
+  textSize(16);
+  text(countName + ' Count: ' + count, 10, height - 20);
+
+  if (selectAngle.checked()) {
+    fill(255);
+    textSize(16);
+    text('Left Elbow: ' + (angle ? angle[0].toFixed(2) : '-'), 10, 20);
+    text('Right Elbow: ' + (angle ? angle[1].toFixed(2) : '-'), 10, 40);
+    text('Left Knee: ' + (angle ? angle[2].toFixed(2) : '-'), 10, 60);
+    text('Right Knee: ' + (angle ? angle[3].toFixed(2) : '-'), 10, 80);
+    text('Left Shoulder: ' + (angle ? angle[4].toFixed(2) : '-'), 10, 100);
+    text('Right Shoulder: ' + (angle ? angle[5].toFixed(2) : '-'), 10, 120);
+  }
+
+  if (isRecording) {
+    fill(255, 0, 0);
+    noStroke();
+    ellipse(20, 20, 10, 10);
+  }
 }
 
-function posedraw() {
+function drawPose() {
   for (let i = 0; i < pose.keypoints.length; i++) {
     let x = pose.keypoints[i].position.x;
     let y = pose.keypoints[i].position.y;
-    fill(0,0,255);
-    ellipse(x, y, 16);
-  }
-  for (let i = 0; i < skeleton.length; i++){
-    let a = skeleton[i][0];
-    let b = skeleton[i][1];
-    strokeWeight(4);  //굵기
-    stroke(255);      //흰색
-    line(a.position.x, a.position.y, b.position.x, b.position.y);
+    fill(0, 255, 0);
+    ellipse(x, y, 16, 16);
   }
 }
 
-function draw() {
-  translate(video.width, 0);
-  scale(-1,1);
-  image(video, 0, 0, video.width, video.height);
-  //거울과 같이 보이게 비디오를 좌우반전 및 위치조정
-  
-  strokeWeight(4);  //굵기
-  stroke(255);      //흰색
-  if(pose) {
-    posedraw();
-    angle = angleUpdate();
+function drawSkeleton() {
+  for (let i = 0; i < skeleton.length; i++) {
+    let a = skeleton[i][0];
+    let b = skeleton[i][1];
+    strokeWeight(2);
+    stroke(255);
+    line(a.position.x, a.position.y, b.position.x, b.position.y);
   }
-  
-  scale(-1,1);
 }
