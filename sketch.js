@@ -1,6 +1,5 @@
 // 모션 추정 코드
 let video;
-let resetSound;
 let countSound;
 
 let poseNet;
@@ -20,7 +19,6 @@ function preload() {
 } // 저장된 동작 리스트를 알기 위해 json파일을 프로그램 실행 전 미리 로드
 
 function setup() {
-  // createCanvas(640, 480);
   createCanvas(384, 512);
 
   video = createCapture(VIDEO);
@@ -28,7 +26,7 @@ function setup() {
   video.hide();
 
   countSound = loadSound('sound/check.wav');
-  resetSound = loadSound('sound/reset.mp3');
+  countName = motionList.outputs[0].uniqueValues[i];
 
   poseNet = ml5.poseNet(video);
   poseNet.on('pose', extraction);
@@ -48,20 +46,6 @@ function setup() {
   };
 
   brain.load(modelInfo, classification);
-
-  resetBtn = createButton('Reset');
-  resetBtn.mousePressed(selectReset);
-
-  // 동작 선택
-  sel = createSelect();
-  sel.option('None');
-  for (let i = 0; i < motionList.outputs[0].uniqueValues.length; i++) {
-    sel.option(motionList.outputs[0].uniqueValues[i]);
-  }
-  sel.changed(selectCount);
-
-  // 각도 선택
-  selectAngle = createCheckbox('각도 보기', false);
 
   // 화면 녹화 버튼
   recordingBtn = createButton('Record');
@@ -119,15 +103,6 @@ function handleStop() {
   console.log('Recording stopped.');
 }
 
-function selectReset() {
-  count = 0;
-  resetSound.play();
-}
-
-function selectCount() {
-  countName = sel.value();
-  count = 0;
-}
 
 // 각도는 양 옆 점(p1, p3) 사이에 끼인 점(p2)의 사이각을 구함
 // ex = getAngle(pose.leftShoulder, pose.leftElbow, pose.leftWrist)
@@ -219,9 +194,6 @@ function extraction(poses) {
   if (poses.length > 0) {
     pose = poses[0].pose;
     skeleton = poses[0].skeleton;
-    if (selectAngle.checked()) {
-      angle = angleUpdate();
-    }
   }
 }
 
@@ -248,18 +220,4 @@ function draw() {
       line(a.position.x, a.position.y, b.position.x, b.position.y);
     }
   }
-
-  if (selectAngle.checked() && angle) {
-    let index = 0;
-    for (const [key, value] of Object.entries(angle)) {
-      fill(255);
-      text(`${key}: ${value.toFixed(2)}°`, 10, 30 + 20 * index);
-      index++;
-    }
-  }
-
-  textSize(32);
-  fill(255, 0, 0);
-  text(count, 10, height - 20);
-  text(countName, 10, height - 60);
 }
