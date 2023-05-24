@@ -26,7 +26,7 @@ function setup() {
   video.hide();
 
   countSound = loadSound('sound/check.wav');
-  countName = motionList.outputs[0].uniqueValues[i];
+  countName = motionList.outputs[0].uniqueValues[1];
 
   poseNet = ml5.poseNet(video);
   poseNet.on('pose', extraction);
