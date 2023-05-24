@@ -202,7 +202,6 @@ function draw() {
   translate(video.width, 0);
   scale(-1, 1);
   image(video, 0, 0, width, height);
-  pop();
 
   if (pose) {
     for (let i = 0; i < pose.keypoints.length; i++) {
@@ -220,4 +219,5 @@ function draw() {
       line(a.position.x, a.position.y, b.position.x, b.position.y);
     }
   }
+  pop();
 }
