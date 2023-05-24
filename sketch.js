@@ -198,7 +198,7 @@ function extraction(poses) {
 }
 
 function draw() {
-  push();
+  //push();
   translate(video.width, 0);
   scale(-1, 1);
   image(video, 0, 0, width, height);
@@ -219,5 +219,5 @@ function draw() {
       line(a.position.x, a.position.y, b.position.x, b.position.y);
     }
   }
-  pop();
+  //pop();
 }
