@@ -20,7 +20,6 @@ function preload() {
 
 function setup() {
   createCanvas(384, 512);
-
   video = createCapture(VIDEO);
   video.size(width, height);
   video.hide();
@@ -185,6 +184,7 @@ function classifyResult(error, results) {
   if (countName == curState && pastState != curState) {
     count++;
     countSound.play();
+    console.log('Exercise:',countName,':', count);
   }
 
   classification(); //반복 포즈추정
