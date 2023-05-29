@@ -17,6 +17,7 @@ let angle;
 let videoURL;
 let videoPlayer;
 let cameraActive = true; // 카메라 활성화 상태를 나타내는 변수 추가
+let averageScore = 0.0;
 
 function preload() {
   motionList = loadJSON('model/model_meta.json');
@@ -30,6 +31,14 @@ function setup() {
 
   countSound = loadSound('sound/check.wav');
   countName = motionList.outputs[0].uniqueValues[1];
+
+  // let poseOptions = {
+  //   architecture: 'MobileNetV1',
+  //   imageScaleFactor: 0.3,
+  //   outputStride: 16,
+  //   flipHorizontal: false,
+  //   minConfidence: 0.5
+  // }
 
   poseNet = ml5.poseNet(video);
   poseNet.on('pose', extraction);
@@ -138,12 +147,21 @@ function handleStop() {
 function classification() {
   if (pose) {
     let inputs = [];
+    averageScore = 0.0;
     for (let i = 0; i < pose.keypoints.length; i++) {
       inputs.push(pose.keypoints[i].position.x);
       inputs.push(pose.keypoints[i].position.y);
+      averageScore += pose.keypoints[i].score;
     }
-    brain.classify(inputs, classifyResult);
-  } else {
+    averageScore /= 17.0;
+    if (averageScore >= 0.8) {
+      brain.classify(inputs, classifyResult);
+    }
+    else {
+      setTimeout(classification, 100);
+    }
+  }
+  else {
     setTimeout(classification, 100); //포즈가 인식되지 않았을 때 100밀리초마다 포즈추정 반복
   }
 }
@@ -183,19 +201,37 @@ function draw() {
 
   if (pose) {
     for (let i = 0; i < pose.keypoints.length; i++) {
-      let x = pose.keypoints[i].position.x;
-      let y = pose.keypoints[i].position.y;
-      fill(0, 0, 255);
-      ellipse(x, y, 16, 16);
+      if(pose.keypoints[i].score > 0.5) {
+        let x = pose.keypoints[i].position.x;
+        let y = pose.keypoints[i].position.y;
+        fill(0, 0, 255);
+        ellipse(x, y, 16, 16);
+        strokeWeight(2);
+        stroke(255);
+      }
     }
 
     for (let i = 0; i < skeleton.length; i++) {
-      let a = skeleton[i][0];
-      let b = skeleton[i][1];
-      strokeWeight(2);
-      stroke(255);
-      line(a.position.x, a.position.y, b.position.x, b.position.y);
+      if(pose.keypoints[i].score > 0.5){
+        let a = skeleton[i][0];
+        let b = skeleton[i][1];
+        strokeWeight(2);
+        stroke(255);
+        line(a.position.x, a.position.y, b.position.x, b.position.y); 
+      }
     }
   }
+
+  if(averageScore <= 0.7) {
+    scale(-1,1);
+    textSize(20);
+    fill(0,0,0);
+    stroke(255);
+    strokeWeight(3);
+    textAlign(RIGHT, TOP);
+    text('전신이 카메라에 보이도록 해주세요.', -30, 50);
+    scale(-1,1);
+  }
+
   //pop();
 }
