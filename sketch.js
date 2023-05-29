@@ -1,3 +1,4 @@
+// 스쿼트 버전!
 // 모션 추정 코드
 let video;
 let countSound;
@@ -166,6 +167,10 @@ function classification() {
   }
 }
 
+let pastStateTime = 0;
+const stateChangeThreshold = 700; // 상태 변경 임계값
+let isCounting = false; // 횟수를 세고 있는지 여부를 나타내는 변수
+
 function classifyResult(error, results) {
   pastState = curState;
   if (error) {
@@ -174,13 +179,23 @@ function classifyResult(error, results) {
   }
   curState = results[0].label;
 
-  if (countName == curState && pastState != curState) {
+  if (countName == curState && !isCounting && pastState == 'Default') {
+    // countName과 curState가 일치하고, 이전에 'Default'자세였으며 횟수를 세고 있지 않은 경우
+    pastStateTime = Date.now(); // 현재 시간으로 초기화
+    isCounting = true;
+  }
+  else if (isCounting && curState != countName && curState != 'Default') {
+    isCounting = false;
+  }
+  else if (countName != curState && isCounting && (Date.now() - pastStateTime) >= stateChangeThreshold) {
+    // countName과 curState가 다르고, 횟수를 세고 있으며, 임계값 이상 시간이 경과한 경우
     count++;
     countSound.play();
-    console.log('Exercise:',countName,':', count);
+    console.log('Exercise:', countName, ':', count);
+    isCounting = false; // 횟수 세는 상태를 종료
   }
 
-  classification(); //반복 포즈추정
+  classification(); // 반복 포즈 추정
 }
 
 function extraction(poses) {
@@ -232,6 +247,5 @@ function draw() {
     text('전신이 카메라에 보이도록 해주세요.', -30, 50);
     scale(-1,1);
   }
-
   //pop();
 }
