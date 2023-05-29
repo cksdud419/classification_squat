@@ -14,6 +14,10 @@ let countName = 'None';
 let inp;
 let angle;
 
+let videoURL;
+let videoPlayer;
+let cameraActive = true; // 카메라 활성화 상태를 나타내는 변수 추가
+
 function preload() {
   motionList = loadJSON('model/model_meta.json');
 } // 저장된 동작 리스트를 알기 위해 json파일을 프로그램 실행 전 미리 로드
@@ -50,15 +54,22 @@ function setup() {
   recordingBtn = createButton('Record');
   recordingBtn.position(10, 10);
   recordingBtn.mousePressed(toggleRecording);
+
+  playBtn = createButton('Play');
+  playBtn.position(recordingBtn.x + recordingBtn.width + 10, recordingBtn.y);
+  playBtn.mousePressed(playRecording);
+  playBtn.hide(); // 일단 숨겨둠
 }
 
 function toggleRecording() {
   if (recording) {
     recordingBtn.html('Record');
     mediaRecorder.stop();
+    playBtn.show(); // 녹화 중지 시 playBtn 표시
   } else {
     recordingBtn.html('Stop');
     startRecording();
+    playBtn.hide(); // 녹화 시작 시 playBtn 숨김
   }
 }
 
@@ -66,9 +77,38 @@ let chunks = [];
 let mediaRecorder;
 let recording = false;
 
+function playRecording() {
+  noLoop();
+  cameraActive = false;
+  pose = null;
+  if (videoURL) {
+    videoPlayer = createVideo([videoURL]);
+    videoPlayer.loop();
+    videoPlayer.show();
+    const canvasPosition = select('canvas').position();
+    videoPlayer.position(canvasPosition.x, canvasPosition.y);
+    videoPlayer.size(width, height);
+
+    // "Back" 버튼 생성
+    backBtn = createButton('Back');
+    backBtn.position(canvasPosition.x + width - 60, canvasPosition.y + 10);
+    backBtn.mousePressed(stopPlayback);
+  }
+}
+
+function stopPlayback() {
+  if (videoPlayer) {
+    videoPlayer.pause();
+    videoPlayer.hide();
+    videoPlayer.remove();
+    backBtn.remove();
+    loop();
+    cameraActive = true;
+  }
+}
+
 function startRecording() {
   if (typeof MediaRecorder === 'undefined') {
-    console.log('MediaRecorder API is not supported.');
     return;
   }
 
@@ -79,7 +119,6 @@ function startRecording() {
   mediaRecorder.onstop = handleStop;
   mediaRecorder.start();
   recording = true;
-  console.log('Recording started.');
 }
 
 function handleDataAvailable(event) {
@@ -90,74 +129,10 @@ function handleDataAvailable(event) {
 
 function handleStop() {
   const blob = new Blob(chunks, { type: 'video/webm' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  document.body.appendChild(a);
-  a.href = url;
-  a.download = 'recorded_video.webm';
-  a.click();
-  window.URL.revokeObjectURL(url);
+  videoURL = URL.createObjectURL(blob);
   chunks = [];
   recording = false;
-  console.log('Recording stopped.');
-}
-
-
-// 각도는 양 옆 점(p1, p3) 사이에 끼인 점(p2)의 사이각을 구함
-// ex = getAngle(pose.leftShoulder, pose.leftElbow, pose.leftWrist)
-function getAngle(p1, p2, p3) {
-  if (
-    p1.confidence < 0.65 ||
-    p2.confidence < 0.65 ||
-    p3.confidence < 0.65
-  )
-    return null; // 키포인트 인식이 제대로 되지 않으면 각도 계산을 하지 않음
-
-  rad =
-    Math.atan2(p3.y - p2.y, p3.x - p2.x) -
-    Math.atan2(p1.y - p2.y, p1.x - p2.x); // atan2 함수를 이용하여 라디안 계산
-  deg = rad * (180 / Math.PI); // 라디안을 각도로 환산하기 위해 180/파이 곱
-  vecdeg = 360 - Math.abs(deg); // 반대쪽 각
-
-  if (deg < 0) return Math.abs(deg); // 음각일 때 절대값으로 반환
-  else return deg;
-}
-
-function angleUpdate() {
-  // 추가적인 각도 계산이 필요하면 추가할 것
-  leftElbow = getAngle(
-    pose.leftShoulder,
-    pose.leftElbow,
-    pose.leftWrist
-  ); //좌측 팔꿈치각도
-  rightElbow = getAngle(
-    pose.rightShoulder,
-    pose.rightElbow,
-    pose.rightWrist
-  ); //우측 팔꿈치각도
-
-  leftKnee = getAngle(pose.leftHip, pose.leftKnee, pose.leftAnkle); //좌측 무릎
-  rightKnee = getAngle(pose.rightHip, pose.rightKnee, pose.rightAnkle); //우측 무릎
-
-  leftShoulder = getAngle(
-    pose.leftElbow,
-    pose.leftShoulder,
-    pose.leftHip
-  ); //좌측 어깨(겨드랑이)
-  rightShoulder = getAngle(
-    pose.rightElbow,
-    pose.rightShoulder,
-    pose.rightHip
-  ); //우측 어깨
-
-  return {
-    leftElbow: leftElbow,
-    rightElbow: rightElbow,
-    leftKnee: leftKnee,
-    rightKnee: rightKnee,
-    leftShoulder: leftShoulder,
-    rightShoulder: rightShoulder
-  };
+  playBtn.show(); // 녹화 중지 후 playBtn 표시
 }
 
 function classification() {
@@ -191,11 +166,13 @@ function classifyResult(error, results) {
 }
 
 function extraction(poses) {
-  if (poses.length > 0) {
-    pose = poses[0].pose;
-    skeleton = poses[0].skeleton;
+  if (cameraActive) {
+    if (poses.length > 0) {
+      pose = poses[0].pose;
+      skeleton = poses[0].skeleton;
+    }
+    else pose = null;
   }
-  else pose = null;
 }
 
 function draw() {
