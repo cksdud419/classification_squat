@@ -29,6 +29,7 @@ function setup() {
   video = createCapture(VIDEO);
   video.size(width, height);
   video.hide();
+  fill(0);
 
   countSound = loadSound('sound/check.wav');
   countName = motionList.outputs[0].uniqueValues[1];
@@ -62,24 +63,44 @@ function setup() {
 
   // 화면 녹화 버튼
   recordingBtn = createButton('Record');
-  recordingBtn.position(10, 10);
+  recordingBtn.position(70, 520);
+  recordingBtn.size(90,30);
+  recordingBtn.style('background-color', '#FEC107');
+  //recordingBtn.style('color', 'white');
+  recordingBtn.style('font-weight', 'bold');
+  recordingBtn.style('border-color', 'transparent');
+  recordingBtn.style('font-size', '20px');
+  recordingBtn.style('border-radius', '5px'); // 모서리를 둥글게 만드는 속성 추가
   recordingBtn.mousePressed(toggleRecording);
 
+  // 녹화 재생 버튼
   playBtn = createButton('Play');
-  playBtn.position(recordingBtn.x + recordingBtn.width + 10, recordingBtn.y);
+  playBtn.position(224, recordingBtn.y);
+  playBtn.size(90,30);
+  playBtn.style('background-color', 'gray');
+  playBtn.style('font-weight', 'bold');
+  playBtn.style('border-color', 'transparent');
+  playBtn.style('font-size', '20px');
+  playBtn.style('border-radius', '5px'); // 모서리를 둥글게 만드는 속성 추가
   playBtn.mousePressed(playRecording);
-  playBtn.hide(); // 일단 숨겨둠
+  playBtn.elt.disabled = true; // 일단은 버튼 비활성화
 }
 
 function toggleRecording() {
   if (recording) {
     recordingBtn.html('Record');
+    recordingBtn.style('background-color', '#FEC107');
+    recordingBtn.style('color', 'black');
     mediaRecorder.stop();
-    playBtn.show(); // 녹화 중지 시 playBtn 표시
+    playBtn.elt.disabled = false; // 녹화 중지 시 playBtn 활성화
+    playBtn.style('background-color', '#59DA50');
   } else {
     recordingBtn.html('Stop');
+    recordingBtn.style('background-color', '#FF2424');
+    recordingBtn.style('color', 'white');
     startRecording();
-    playBtn.hide(); // 녹화 시작 시 playBtn 숨김
+    playBtn.elt.disabled = true; // 녹화 시작 시 playBtn 비활성화
+    playBtn.style('background-color', 'gray');
   }
 }
 
@@ -99,9 +120,18 @@ function playRecording() {
     videoPlayer.position(canvasPosition.x, canvasPosition.y);
     videoPlayer.size(width, height);
 
-    // "Back" 버튼 생성
+    playBtn.hide();
+    recordingBtn.hide();
+    // 재생 중단 버튼
     backBtn = createButton('Back');
-    backBtn.position(canvasPosition.x + width - 60, canvasPosition.y + 10);
+    backBtn.position(width / 2 - 45, recordingBtn.y);
+    backBtn.size(90,30);
+    backBtn.style('background-color', '#2524FF');
+    backBtn.style('font-weight', 'bold');
+    backBtn.style('border-color', 'transparent');
+    backBtn.style('font-size', '20px');
+    backBtn.style('color', 'white');
+    backBtn.style('border-radius', '5px'); // 모서리를 둥글게 만드는 속성 추가
     backBtn.mousePressed(stopPlayback);
   }
 }
@@ -115,6 +145,8 @@ function stopPlayback() {
     loop();
     cameraActive = true;
   }
+  playBtn.show();
+  recordingBtn.show();
 }
 
 function startRecording() {
@@ -209,7 +241,7 @@ function extraction(poses) {
 }
 
 function draw() {
-  //push();
+
   translate(video.width, 0);
   scale(-1, 1);
   image(video, 0, 0, width, height);
@@ -238,14 +270,18 @@ function draw() {
   }
 
   if(averageScore <= 0.7) {
+    fill(color(0, 0, 0, 130));
+    noStroke();
+    rectMode(CENTER);
+    rect(width / 2, 0, width, 80);
+
     scale(-1,1);
     textSize(20);
-    fill(0,0,0);
-    stroke(255);
+    textStyle(BOLD); // 볼드체 설정
+    fill(255);
     strokeWeight(3);
-    textAlign(RIGHT, TOP);
-    text('전신이 카메라에 보이도록 해주세요.', -30, 50);
+    textAlign(CENTER, CENTER);
+    text('전신이 카메라에 보이도록 해주세요.', -width/2, 22);
     scale(-1,1);
   }
-  //pop();
 }
