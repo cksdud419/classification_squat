@@ -282,6 +282,10 @@ function draw() {
     strokeWeight(3);
     textAlign(CENTER, CENTER);
     text('전신이 카메라에 보이도록 해주세요.', -width/2, 22);
+    
+    stroke(255);
+    text(curState, -width/2, 400);
+    
     scale(-1,1);
   }
 }
