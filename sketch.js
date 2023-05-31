@@ -63,24 +63,24 @@ function setup() {
 
   // 화면 녹화 버튼
   recordingBtn = createButton('Record');
-  recordingBtn.position(70, 520);
-  recordingBtn.size(90,40);
+  recordingBtn.position(30, 520);
+  recordingBtn.size(130,60);
   recordingBtn.style('background-color', '#FEC107');
   //recordingBtn.style('color', 'white');
   recordingBtn.style('font-weight', 'bold');
   recordingBtn.style('border-color', 'transparent');
-  recordingBtn.style('font-size', '20px');
+  recordingBtn.style('font-size', '27px');
   recordingBtn.style('border-radius', '3px'); // 모서리를 둥글게 만드는 속성 추가
   recordingBtn.mousePressed(toggleRecording);
 
   // 녹화 재생 버튼
   playBtn = createButton('Play');
-  playBtn.position(224, recordingBtn.y);
-  playBtn.size(90,40);
+  playBtn.position(width - 160, recordingBtn.y);
+  playBtn.size(130,60);
   playBtn.style('background-color', 'gray');
   playBtn.style('font-weight', 'bold');
   playBtn.style('border-color', 'transparent');
-  playBtn.style('font-size', '20px');
+  playBtn.style('font-size', '27px');
   playBtn.style('border-radius', '3px'); // 모서리를 둥글게 만드는 속성 추가
   playBtn.mousePressed(playRecording);
   playBtn.elt.disabled = true; // 일단은 버튼 비활성화
@@ -124,12 +124,12 @@ function playRecording() {
     recordingBtn.hide();
     // 재생 중단 버튼
     backBtn = createButton('Back');
-    backBtn.position(width / 2 - 45, recordingBtn.y);
-    backBtn.size(90,40);
+    backBtn.position(127, recordingBtn.y);
+    backBtn.size(130,60);
     backBtn.style('background-color', '#2524FF');
     backBtn.style('font-weight', 'bold');
     backBtn.style('border-color', 'transparent');
-    backBtn.style('font-size', '20px');
+    backBtn.style('font-size', '27px');
     backBtn.style('color', 'white');
     backBtn.style('border-radius', '3px'); // 모서리를 둥글게 만드는 속성 추가
     backBtn.mousePressed(stopPlayback);
