@@ -63,7 +63,7 @@ function setup() {
 
   // 화면 녹화 버튼
   recordingBtn = createButton('Record');
-  recordingBtn.position(30, 520);
+  recordingBtn.position(30, 540);
   recordingBtn.size(130,60);
   recordingBtn.style('background-color', '#FEC107');
   //recordingBtn.style('color', 'white');
