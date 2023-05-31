@@ -61,29 +61,29 @@ function setup() {
 
   brain.load(modelInfo, classification);
 
-  // 화면 녹화 버튼
-  recordingBtn = createButton('Record');
-  recordingBtn.position(30, 520);
-  recordingBtn.size(130,60);
-  recordingBtn.style('background-color', '#FEC107');
-  //recordingBtn.style('color', 'white');
-  recordingBtn.style('font-weight', 'bold');
-  recordingBtn.style('border-color', 'transparent');
-  recordingBtn.style('font-size', '27px');
-  recordingBtn.style('border-radius', '3px'); // 모서리를 둥글게 만드는 속성 추가
-  recordingBtn.mousePressed(toggleRecording);
+//   // 화면 녹화 버튼
+//   recordingBtn = createButton('Record');
+//   recordingBtn.position(30, 520);
+//   recordingBtn.size(130,60);
+//   recordingBtn.style('background-color', '#FEC107');
+//   //recordingBtn.style('color', 'white');
+//   recordingBtn.style('font-weight', 'bold');
+//   recordingBtn.style('border-color', 'transparent');
+//   recordingBtn.style('font-size', '27px');
+//   recordingBtn.style('border-radius', '3px'); // 모서리를 둥글게 만드는 속성 추가
+//   recordingBtn.mousePressed(toggleRecording);
 
-  // 녹화 재생 버튼
-  playBtn = createButton('Play');
-  playBtn.position(width - 160, recordingBtn.y);
-  playBtn.size(130,60);
-  playBtn.style('background-color', 'gray');
-  playBtn.style('font-weight', 'bold');
-  playBtn.style('border-color', 'transparent');
-  playBtn.style('font-size', '27px');
-  playBtn.style('border-radius', '3px'); // 모서리를 둥글게 만드는 속성 추가
-  playBtn.mousePressed(playRecording);
-  playBtn.elt.disabled = true; // 일단은 버튼 비활성화
+//   // 녹화 재생 버튼
+//   playBtn = createButton('Play');
+//   playBtn.position(width - 160, recordingBtn.y);
+//   playBtn.size(130,60);
+//   playBtn.style('background-color', 'gray');
+//   playBtn.style('font-weight', 'bold');
+//   playBtn.style('border-color', 'transparent');
+//   playBtn.style('font-size', '27px');
+//   playBtn.style('border-radius', '3px'); // 모서리를 둥글게 만드는 속성 추가
+//   playBtn.mousePressed(playRecording);
+//   playBtn.elt.disabled = true; // 일단은 버튼 비활성화
 }
 
 function toggleRecording() {
