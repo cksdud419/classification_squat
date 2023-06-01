@@ -217,6 +217,9 @@ function classifyResult(error, results) {
     pastState = curState;
     curState = results[0].label;
   }
+  else {
+    curState = null;
+  }
 
   if (countName == curState && !isCounting && pastState == 'Default') {
     // countName과 curState가 일치하고, 이전에 'Default'자세였으며 횟수를 세고 있지 않은 경우
