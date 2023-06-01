@@ -197,6 +197,7 @@ function classification() {
   }
   else {
     curState = 'Error';
+    result_pose = undefined;
     setTimeout(classification, 100); //포즈가 인식되지 않았을 때 100밀리초마다 포즈추정 반복
   }
 }
@@ -206,15 +207,9 @@ const stateChangeThreshold = 700; // 상태 변경 임계값
 let isCounting = false; // 횟수를 세고 있는지 여부를 나타내는 변수
 
 let result_pose;
-// let past_pose;
-// let pose_first = false;
 
 function classifyResult(error, results) {
-  // result_pose = results;
-  // if (pose_first == false) {
-  //   past_pose = result_pose;
-  //   pose_first = true;
-  // }
+  result_pose = results;
   
   if (error) {
     console.error(error);
@@ -226,13 +221,7 @@ function classifyResult(error, results) {
     curState = results[0].label;
   }
 
-  // if(result_pose == 'undefined') {
-  //   curState = 'Error';
-  //   pose_first = false;
-  // }
-  // else if(result_pose[0].confidence == past_pose.confidence[0] && result_pose[0].label != 'Default') {
-  //   curState = 'Error';
-  // }
+
 
   if (countName == curState && !isCounting && pastState == 'Default') {
     // countName과 curState가 일치하고, 이전에 'Default'자세였으며 횟수를 세고 있지 않은 경우
@@ -249,7 +238,6 @@ function classifyResult(error, results) {
     console.log('Exercise:', countName, ':', count);
     isCounting = false; // 횟수 세는 상태를 종료
   }
-  past_pose = result_pose;
   classification(); // 반복 포즈 추정
 }
 
