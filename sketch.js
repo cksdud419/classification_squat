@@ -313,10 +313,18 @@ function draw() {
   scale(-1,1);
   // 여기까지
 
-  // 권장 동작인식 상자
+  // 권장 동작인식 상자(연두)
   fill(color(0, 0, 0, 0));
   stroke(0,238,0);
   strokeWeight(3);
   rect(width / 2, 300, 300, 412);
+  stroke(255);
+
+  // 권장 동작인식 상자(빨강)
+  rectMode(TOP);
+  fill(color(0, 0, 0, 0));
+  stroke(240,0,0);
+  strokeWeight(3);
+  rect(width / 2, 310, 130, 270);
   stroke(255);
 }
