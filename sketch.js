@@ -187,7 +187,7 @@ function classification() {
       averageScore += pose.keypoints[i].score;
     }
     averageScore /= 17.0;
-    if (averageScore >= 0.85) {
+    if (averageScore >= 0.7) {
       brain.classify(inputs, classifyResult);
     }
     else {
@@ -283,7 +283,7 @@ function draw() {
     }
   }
 
-  if(averageScore <= 0.85) {
+  if(averageScore <= 0.7) {
     // 안내 메시지 상자
     fill(color(0, 0, 0, 130));
     noStroke();
