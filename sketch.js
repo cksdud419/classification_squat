@@ -299,25 +299,25 @@ function draw() {
     textAlign(CENTER, CENTER);
     text('전신이 카메라에 보이도록 해주세요.', -width/2, 22);
     textSize(15);
-    text('연두색 상자 안에 전신이 들어가는 것이 가장 좋습니다.', -width/2, 50); 
+    text('연두색 상자와 빨간색 상자의 사이에 위치해주세요.', -width/2, 50); 
     scale(-1,1);
   }
   
-  // 확인용 나중에 지워야됨
-  scale(-1,1);
-  stroke(255);
-  fill(0);
-  text(curState, -width/2, 400);
-  if(result_pose)
-    text(result_pose[0].confidence, -width/2, 430);
-  scale(-1,1);
-  // 여기까지
+  // // 확인용 나중에 지워야됨
+  // scale(-1,1);
+  // stroke(255);
+  // fill(0);
+  // text(curState, -width/2, 400);
+  // if(result_pose)
+  //   text(result_pose[0].confidence, -width/2, 430);
+  // scale(-1,1);
+  // // 여기까지
 
   // 권장 동작인식 상자(연두)
   fill(color(0, 0, 0, 0));
   stroke(0,238,0);
   strokeWeight(3);
-  rect(width / 2, 300, 300, 412);
+  rect(width / 2, 300, 200, 412);
   stroke(255);
 
   // 권장 동작인식 상자(빨강)
@@ -325,6 +325,6 @@ function draw() {
   fill(color(0, 0, 0, 0));
   stroke(240,0,0);
   strokeWeight(3);
-  rect(width / 2, 310, 130, 270);
+  rect(width / 2, 310, 40, 280);
   stroke(255);
 }
