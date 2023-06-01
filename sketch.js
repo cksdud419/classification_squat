@@ -212,32 +212,36 @@ function classifyResult(error, results) {
     console.error(error);
     return;
   }
-
-  if(result_pose[0].confidence >= 0.99) {
-    pastState = curState;
-    curState = results[0].label;
-  }
+  
   else {
     brain.classify(inputs, classifyResult);
   }
-
-  if (countName == curState && !isCounting && pastState == 'Default') {
-    // countName과 curState가 일치하고, 이전에 'Default'자세였으며 횟수를 세고 있지 않은 경우
-    pastStateTime = Date.now(); // 현재 시간으로 초기화
-    isCounting = true;
+  
+  if(result_pose[0].confidence < 0.99) {
+    brain.classify(inputs, classifyResult);
   }
-  else if (isCounting && curState != countName && curState != 'Default') {
-    isCounting = false;
+  else {
+    pastState = curState;
+    curState = results[0].label;
+    
+    if (countName == curState && !isCounting && pastState == 'Default') {
+      // countName과 curState가 일치하고, 이전에 'Default'자세였으며 횟수를 세고 있지 않은 경우
+      pastStateTime = Date.now(); // 현재 시간으로 초기화
+      isCounting = true;
+    }
+    else if (isCounting && curState != countName && curState != 'Default') {
+      isCounting = false;
+    }
+    else if (countName != curState && isCounting && (Date.now() - pastStateTime) >= stateChangeThreshold) {
+      // countName과 curState가 다르고, 횟수를 세고 있으며, 임계값 이상 시간이 경과한 경우
+      count++;
+      countSound.play();
+      console.log('Exercise:', countName, ':', count);
+      isCounting = false; // 횟수 세는 상태를 종료
+    }
+  
+    classification(); // 반복 포즈 추정
   }
-  else if (countName != curState && isCounting && (Date.now() - pastStateTime) >= stateChangeThreshold) {
-    // countName과 curState가 다르고, 횟수를 세고 있으며, 임계값 이상 시간이 경과한 경우
-    count++;
-    countSound.play();
-    console.log('Exercise:', countName, ':', count);
-    isCounting = false; // 횟수 세는 상태를 종료
-  }
-
-  classification(); // 반복 포즈 추정
 }
 
 function extraction(poses) {
