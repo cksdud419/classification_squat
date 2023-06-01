@@ -217,7 +217,7 @@ function classifyResult(error, results) {
     brain.classify(inputs, classifyResult);
   }
   
-  if(result_pose[0].confidence < 0.99) {
+  if(result_pose[0].confidence < 0.9) {
     brain.classify(inputs, classifyResult);
   }
   else {
