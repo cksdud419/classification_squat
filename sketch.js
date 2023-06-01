@@ -203,13 +203,20 @@ let pastStateTime = 0;
 const stateChangeThreshold = 700; // 상태 변경 임계값
 let isCounting = false; // 횟수를 세고 있는지 여부를 나타내는 변수
 
+let result_pose;
+
 function classifyResult(error, results) {
-  pastState = curState;
+  result_pose = results;
+  
   if (error) {
     console.error(error);
     return;
   }
-  curState = results[0].label;
+
+  if(result_pose[0].confidence >= 0.99) {
+    pastState = curState;
+    curState = results[0].label;
+  }
 
   if (countName == curState && !isCounting && pastState == 'Default') {
     // countName과 curState가 일치하고, 이전에 'Default'자세였으며 횟수를 세고 있지 않은 경우
@@ -289,5 +296,7 @@ function draw() {
   stroke(255);
   fill(0);
   text(curState, -width/2, 400);
+  if(result_pose)
+    text(result_pose[0].confidence, -width/2, 430);
   scale(-1,1);
 }
