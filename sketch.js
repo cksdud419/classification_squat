@@ -218,7 +218,7 @@ function classifyResult(error, results) {
     curState = results[0].label;
   }
   else {
-    curState = null;
+    curState = 'Error';
   }
 
   if (countName == curState && !isCounting && pastState == 'Default') {
