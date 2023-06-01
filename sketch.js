@@ -269,7 +269,7 @@ function draw() {
     }
   }
 
-  if(averageScore <= 0.7) {
+  if(averageScore <= 0.8) {
     fill(color(0, 0, 0, 130));
     noStroke();
     rectMode(CENTER);
@@ -281,11 +281,13 @@ function draw() {
     fill(255);
     strokeWeight(3);
     textAlign(CENTER, CENTER);
-    text('전신이 카메라에 보이도록 해주세요.', -width/2, 22);
-    
-    stroke(255);
-    text(curState, -width/2, 400);
-    
+    text('전신이 카메라에 보이도록 해주세요.', -width/2, 22); 
     scale(-1,1);
   }
+  
+  scale(-1,1);
+  stroke(255);
+  fill(0);
+  text(curState, -width/2, 400);
+  scale(-1,1);
 }
